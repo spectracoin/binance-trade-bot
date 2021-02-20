@@ -421,13 +421,28 @@ def scout(client, transaction_fee=0.001, multiplier=5):
         coin_opt_coin_ratio = current_coin_price / \
            optional_coin_price
 
+        current_value = coin_opt_coin_ratio - transaction_fee * multiplier * coin_opt_coin_ratio
+        required_value = g_state.coin_table[g_state.current_coin][optional_coin]
+
+
         if (coin_opt_coin_ratio - transaction_fee * multiplier * coin_opt_coin_ratio) > g_state.coin_table[g_state.current_coin][optional_coin]:
             logger.info('Will be jumping from {0} to {1}'.format(
                 g_state.current_coin, optional_coin))
             transaction_through_tether(
                 client, g_state.current_coin, optional_coin)
             break
+        else:
+            difference = (current_value - required_value ) / required_value * 100
+            text = ('Will not jump from {0} to {1}. Cur: {2}, Req: {3}, Diff: {4} % '.format(
+                g_state.current_coin,
+                optional_coin,
+                round(current_value, 8),
+                round(required_value, 8),
+                round(difference, 2)
+            ))
 
+            print(text)
+    print('---')
 
 def main():
     api_key = config.get(USER_CFG_SECTION, 'api_key')
